@@ -49,6 +49,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
   <button id="locate" type="button">⌖ My location</button>
   <button id="base" type="button">Satellite</button>
   <button id="offline" type="button">⬇ Save offline</button>
+  <button id="city" type="button">⛺ Whole city</button>
  </div>
  <label>Map <input id="opacity" type="range" min="0" max="100" value="85"></label>
  <input id="search" list="places" placeholder="Find a camp or art…" autocomplete="off">
@@ -65,6 +66,7 @@ const TAG_URL=(()=>{try{const m=location.hash.match(/feed=([^&]+)/);if(m){const 
 const b=CFG.bounds, bounds=[[b.south,b.west],[b.north,b.east]];
 const $=id=>document.getElementById(id);
 const panel=$('panel'), st=$('status');
+let prog=false;
 const map=L.map('map',{zoomControl:true,maxZoom:21}).setView(CFG.center,16);
 window.addEventListener('load',()=>{map.invalidateSize();map.fitBounds(bounds)});
 const SAT='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
@@ -74,6 +76,7 @@ let base=sat.addTo(map);
 const overlay=L.imageOverlay(IMG,bounds,{opacity:.85,interactive:false}).addTo(map);
 L.rectangle(bounds,{color:'#fff',weight:1,fill:false,dashArray:'4 4'}).addTo(map);
 $('opacity').oninput=e=>overlay.setOpacity(e.target.value/100);
+$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(bounds,{padding:[10,10]});prog=false};
 $('base').onclick=e=>{map.removeLayer(base);base=(base===sat?osm:sat).addTo(map);base.bringToBack();e.target.textContent=base===sat?'Satellite':'Streets'};
 // panel collapse (remembered per phone)
 function setCompact(c){panel.classList.toggle('compact',c);$('toggle').textContent=c?'▼':'▲';$('toggle').setAttribute('aria-label',c?'Expand panel':'Collapse panel');try{localStorage.setItem('compact',c?'1':'0')}catch(e){}}
@@ -89,7 +92,7 @@ $('search').onchange=e=>{const p=byName.get(e.target.value);if(!p)return;if(pin)
   pin=L.circleMarker([p.lat,p.lon],{radius:14,color:'#fff',weight:3,fillColor:'#ff6a4d',fillOpacity:1}).addTo(map).bindPopup(`<b>${p.n}</b><br>${p.k}`);
   focusAt([p.lat,p.lon],18);pin.openPopup()};
 // own GPS (works without reception: GPS needs no data)
-const btn=$('locate'); let watch=null, dot=null, ring=null, first=true, lastDrag=0, prog=false;
+const btn=$('locate'); let watch=null, dot=null, ring=null, first=true, lastDrag=0;
 map.on('dragstart zoomstart',()=>{if(!prog)lastDrag=Date.now()});
 function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;btn.classList.remove('on');btn.textContent='⌖ My location'}
 btn.onclick=()=>{

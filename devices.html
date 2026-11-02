@@ -34,6 +34,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .leaflet-popup-tip{background:#fff}
 .leaflet-popup-close-button{font-size:28px!important;width:36px!important;height:36px!important;line-height:36px!important;color:#14142a!important}
 .leaflet-tooltip{font-size:17px;font-weight:700;background:#fff;color:#14142a;border:2px solid #8a8fb0;border-radius:8px;padding:3px 8px}
+.leaflet-tooltip.citylabel{background:transparent;border:0;box-shadow:none;color:#e2431f;font-size:16px}
 .leaflet-control-attribution{font-size:12px;background:rgba(255,255,255,.85);color:#3f4460}
 .leaflet-control-attribution a{color:#1f6fe0}
 </style></head><body>
@@ -44,6 +45,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
   <button id="locate" type="button">⌖ Me</button>
   <button id="base" type="button">Satellite</button>
   <button id="refresh" type="button">↻ Refresh</button>
+  <button id="city" type="button">⛺ Midburn city</button>
  </div>
  <div id="status">Loading device positions…</div>
  <div id="devices"></div>
@@ -90,6 +92,10 @@ async function poll(){
   catch(e){let c=null;try{c=JSON.parse(localStorage.getItem('devdata'))}catch(x){}if(c)render(c,true);else st.textContent='Feed unreachable · nothing stored yet'}
 }
 $('refresh').onclick=poll; poll(); setInterval(poll,POLL_MS);
+// Midburn 2026 city (from georef.json)
+const CITY={center:[30.821027,35.049428],bounds:[[30.816967,35.039000],[30.825087,35.059855]]};
+L.rectangle(CITY.bounds,{color:'#e2431f',weight:2,fill:false,dashArray:'6 4'}).addTo(map).bindTooltip('Midburn 2026',{permanent:true,direction:'center',className:'citylabel'});
+$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(CITY.bounds,{padding:[20,20]});prog=false};
 // own position
 const btn=$('locate'); let watch=null, dot=null, ring=null, first=true;
 function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;btn.classList.remove('on');btn.textContent='⌖ Me'}
