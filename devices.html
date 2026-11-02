@@ -69,7 +69,7 @@ function kindOf(d){const k=(d.kind||'').toLowerCase();if(KCOL[k])return k;const 
 function ago(iso){const s=(Date.now()-Date.parse(iso))/1000;if(!isFinite(s))return '?';if(s<90)return 'just now';if(s<5400)return Math.round(s/60)+' min ago';if(s<172800)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' d ago'}
 const markers=new Map(); let fitted=false;
 function render(data,stale){
-  const devs=((data&&data.tags)||[]).filter(d=>Number.isFinite(d.lat)&&Number.isFinite(d.lon));
+  const devs=((data&&data.tags)||[]).filter(d=>Number.isFinite(d.lat)&&Number.isFinite(d.lon)).sort((x,y)=>String(x.name).localeCompare(String(y.name),undefined,{numeric:true}));
   list.innerHTML='';
   st.textContent=devs.length?(stale?'No connection · last known positions':'Updated '+ago(data.updated||devs[0].time)+(data.updated?' · refreshes every 30 s':'')):(stale?'No connection · nothing stored yet':'Feed linked · no positions yet');
   const pts=[];
