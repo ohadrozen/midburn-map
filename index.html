@@ -4,20 +4,31 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-/* full-screen map tool; one floating control card */
-:root{--ink:#1b1a39;--muted:#5d6376;--card:rgba(255,255,255,.94);--line:#d6d4ea;--accent:#f05242;--ok:#1baf7a}
-html,body{height:100%;margin:0;font:14px/1.4 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#101b2b}
+/* night-use tool: dark high-contrast panel, large touch targets and type */
+:root{--ink:#f4f4ff;--muted:#c9cbe0;--card:rgba(16,20,36,.92);--line:#5d6386;--accent:#ff6a4d;--blue:#4da3ff}
+html,body{height:100%;margin:0;font:20px/1.35 -apple-system,system-ui,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#101b2b}
 #map{position:absolute;inset:0}
-.panel{position:absolute;z-index:1000;left:max(10px,env(safe-area-inset-left,0px));right:max(10px,env(safe-area-inset-right,0px));top:calc(10px + env(safe-area-inset-top,0px));background:var(--card);border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.25);padding:10px 12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;max-width:560px;margin:0 auto}
-.panel h1{font-size:15px;margin:0;flex:1 1 100%}
-.panel label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px}
-input[type=range]{width:110px}
-button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--ink)}
-button.on{background:var(--accent);border-color:var(--accent);color:#fff}
-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-#status{flex:1 1 100%;font-size:13px;color:var(--muted);min-height:1.2em}
-#search{flex:1 1 160px;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
-.leaflet-container{background:#101b2b}
+.panel{position:absolute;z-index:1000;left:max(8px,env(safe-area-inset-left,0px));right:max(8px,env(safe-area-inset-right,0px));top:calc(8px + env(safe-area-inset-top,0px));background:var(--card);border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.5);padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;max-width:640px;margin:0 auto}
+.panel h1{font-size:22px;margin:0;flex:1 1 100%;line-height:1.2}
+.panel label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:19px;flex:1 1 140px;min-width:0}
+input[type=range]{flex:1 1 90px;min-width:70px;height:44px;accent-color:var(--blue)}
+button{font:inherit;font-size:21px;font-weight:600;border:2px solid var(--line);background:#1d2340;border-radius:12px;padding:12px 16px;min-height:56px;cursor:pointer;color:var(--ink);flex:1 1 150px}
+button.on{background:var(--accent);border-color:var(--accent);color:#17120f}
+button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+#status{flex:1 1 100%;font-size:19px;color:var(--muted);min-height:1.3em}
+#search{flex:1 1 100%;min-width:0;font:inherit;font-size:21px;min-height:56px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:#1d2340;color:var(--ink)}
+#search::placeholder{color:#9a9ec0}
+.leaflet-container{background:#101b2b;font-size:18px}
+.leaflet-bar a,.leaflet-bar a:hover{width:52px;height:52px;line-height:52px;font-size:30px;font-weight:700;background:#1d2340;color:#f4f4ff;border-bottom-color:#5d6386}
+.leaflet-control-zoom{margin-top:0!important}
+.leaflet-top.leaflet-left{top:auto;bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.leaflet-bar{border:2px solid #5d6386!important}
+.leaflet-popup-content{font-size:22px;line-height:1.3;margin:14px 18px}
+.leaflet-popup-content-wrapper{background:#1d2340;color:#f4f4ff;border-radius:12px}
+.leaflet-popup-tip{background:#1d2340}
+.leaflet-popup-close-button{font-size:28px!important;width:36px!important;height:36px!important;line-height:36px!important;color:#f4f4ff!important}
+.leaflet-control-attribution{font-size:12px;background:rgba(16,20,36,.8);color:#c9cbe0}
+.leaflet-control-attribution a{color:#9ec5ff}
 </style></head><body>
 <div id="map"></div>
 <div class="panel">
@@ -56,7 +67,7 @@ btn.onclick=()=>{
   btn.classList.add('on');btn.textContent='⌖ Following';st.textContent='Waiting for GPS…';first=true;
   watch=navigator.geolocation.watchPosition(pos=>{
     const {latitude:lat,longitude:lon,accuracy:acc}=pos.coords, ll=[lat,lon];
-    if(!dot){dot=L.circleMarker(ll,{radius:8,color:'#fff',weight:2,fillColor:'#2a7bff',fillOpacity:1}).addTo(map);ring=L.circle(ll,{radius:acc,color:'#2a7bff',weight:1,fillOpacity:.12}).addTo(map)}
+    if(!dot){dot=L.circleMarker(ll,{radius:13,color:'#fff',weight:3,fillColor:'#4da3ff',fillOpacity:1}).addTo(map);ring=L.circle(ll,{radius:acc,color:'#4da3ff',weight:2,fillOpacity:.15}).addTo(map)}
     else{dot.setLatLng(ll);ring.setLatLng(ll);ring.setRadius(acc)}
     const inside=L.latLngBounds(bounds).contains(ll);
     st.textContent=`GPS ±${Math.round(acc)} m · ${lat.toFixed(5)}, ${lon.toFixed(5)}${inside?'':' · outside the city map'}`;
