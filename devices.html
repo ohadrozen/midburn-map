@@ -13,7 +13,13 @@ html,body{height:100%;margin:0;font:20px/1.35 -apple-system,system-ui,Segoe UI,R
 .titlerow{flex:1 1 100%;display:flex;align-items:center;gap:10px}
 .panel h1{font-size:22px;margin:0;flex:1;line-height:1.2}
 #toggle{flex:0 0 auto;min-width:56px;padding:6px}
-.panel.compact .row2,.panel.compact #devices{display:none}
+.panel.compact .row2,.panel.compact #devices,.panel.compact #status{display:none}
+/* collapsed: nothing but the arrow button in the top-right corner */
+.panel.compact{left:auto;width:auto;max-width:none;margin:0;padding:0;background:transparent;box-shadow:none;overflow:visible}
+.panel.compact .titlerow{flex:0 0 auto}
+.panel.compact h1{display:none}
+.panel.compact #toggle{background:var(--card);box-shadow:0 4px 24px rgba(20,20,60,.25);min-width:60px;min-height:60px;font-size:24px}
+
 .row2{flex:1 1 100%;display:flex;gap:10px;flex-wrap:wrap}
 button{font:inherit;font-size:21px;font-weight:600;border:2px solid var(--line);background:var(--field);border-radius:12px;padding:12px 14px;min-height:56px;cursor:pointer;color:var(--ink);flex:1 1 140px}
 button.on{background:var(--accent);border-color:var(--accent);color:#fff}
