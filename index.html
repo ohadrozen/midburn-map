@@ -139,8 +139,8 @@ $('offline').onclick=async e=>{
   st.textContent=`Saving satellite tiles… 0/${urls.length}`;setCompact(false);
   const q=urls.slice(); const worker=async()=>{while(q.length){const u=q.shift();try{if(!(await cache.match(u))){const r=await fetch(u,{mode:'cors'});if(r.ok)await cache.put(u,r);else failed++}}catch(x){failed++}done++;if(done%10===0)st.textContent=`Saving satellite tiles… ${done}/${urls.length}`}};
   await Promise.all([worker(),worker(),worker(),worker()]);
-  e.disabled=false; e.textContent='✓ Saved offline';
+  e.disabled=false; if(!failed){e.textContent='✓ Saved offline';try{localStorage.setItem('offlineSaved',String(urls.length))}catch(x){}}
   st.textContent=failed?`Saved ${urls.length-failed} of ${urls.length} tiles (${failed} failed, tap again to retry).`:`Saved ${urls.length} satellite tiles. The map, your GPS and the last tag positions now work without reception.`;
 };
-caches?.has('tiles-v1').then(h=>{if(h)$('offline').textContent='✓ Saved offline'}).catch(()=>{});
+try{if(localStorage.getItem('offlineSaved'))$('offline').textContent='✓ Saved offline'}catch(e){}
 </script></body></html>
