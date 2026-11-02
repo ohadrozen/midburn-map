@@ -63,7 +63,9 @@ let base=osm.addTo(map);
 $('base').onclick=e=>{map.removeLayer(base);base=(base===sat?osm:sat).addTo(map);base.bringToBack();e.target.textContent=base===sat?'Streets':'Satellite'};
 function setCompact(c){panel.classList.toggle('compact',c);$('toggle').textContent=c?'▼':'▲';$('toggle').setAttribute('aria-label',c?'Expand panel':'Collapse panel')}
 $('toggle').onclick=()=>setCompact(!panel.classList.contains('compact'));
-let prog=false, lastDrag=0; map.on('dragstart zoomstart',()=>{if(!prog)lastDrag=Date.now()});
+let prog=false, following=false;
+// any pan or pinch by the user ends following; the dot keeps updating, the map stays where the user put it
+map.on('dragstart zoomstart',()=>{if(prog||!following)return;following=false;btn.textContent='⌖ Re-centre'});
 function focusAt(ll,z){setCompact(true);prog=true;map.setView(ll,z??map.getZoom(),{animate:false});const h=panel.getBoundingClientRect().height+12;map.panBy([0,-h/2],{animate:false});prog=false}
 const KIND={tag:'var(--k-tag)',phone:'var(--k-phone)',watch:'var(--k-watch)',buds:'var(--k-buds)'};
 const KCOL={tag:'#ffb020',phone:'#1f6fe0',watch:'#1baf7a',buds:'#a941ff',other:'#7d8494'};
@@ -77,7 +79,7 @@ function render(data,stale){
   const pts=[];
   for(const d of devs){const ll=[d.lat,d.lon], k=kindOf(d), col=KCOL[k]; pts.push(ll); let m=markers.get(d.name);
     const html=`<b>${d.name}</b><br>${ago(d.time)} · ±${Math.round(d.accuracy||0)} m${d.battery!=null?' · battery '+d.battery+'%':''}<br><a href="https://www.google.com/maps?q=${d.lat},${d.lon}" target="_blank" rel="noopener">Open in Google Maps</a> &nbsp; <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lon}" target="_blank" rel="noopener">Navigate</a>`;
-    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:col,fillOpacity:1}).addTo(map).bindTooltip(d.name,{permanent:true,direction:'top',offset:[0,-10]}).bindPopup(html);markers.set(d.name,m)}
+    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:col,fillOpacity:1}).addTo(map).bindTooltip(d.name,{permanent:true,direction:'top',offset:[0,-10]}).bindPopup(html,{autoPan:false});markers.set(d.name,m)}
     else{m.setLatLng(ll);m.setPopupContent(html)}
     m.setStyle({fillOpacity:stale?.6:1});
     const bt=document.createElement('button');bt.type='button';bt.style.borderColor=col;if(stale)bt.classList.add('stale');
@@ -101,16 +103,16 @@ map.on('zoomend',()=>{document.querySelectorAll('.citylabel').forEach(e=>e.style
 $('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(CITY.bounds,{padding:[20,20],animate:false});prog=false};
 // own position
 const btn=$('locate'); let watch=null, dot=null, ring=null, first=true;
-function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;btn.classList.remove('on');btn.textContent='⌖ Me'}
+function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;following=false;btn.classList.remove('on');btn.textContent='⌖ Me'}
 btn.onclick=()=>{
-  if(watch!==null){stop();return}
+  if(watch!==null){if(following){stop()}else{following=true;btn.textContent='⌖ Following';if(dot)focusAt(dot.getLatLng(),Math.max(map.getZoom(),15))}return}
   if(!navigator.geolocation||!window.isSecureContext){st.textContent='Location is not available in this browser.';return}
-  btn.classList.add('on');btn.textContent='⌖ Following';first=true;
+  btn.classList.add('on');btn.textContent='⌖ Following';first=true;following=true;
   watch=navigator.geolocation.watchPosition(pos=>{const {latitude:lat,longitude:lon,accuracy:acc}=pos.coords, ll=[lat,lon];
     if(!dot){dot=L.circleMarker(ll,{radius:11,color:'#fff',weight:3,fillColor:'#e2431f',fillOpacity:1}).addTo(map).bindTooltip('Me',{permanent:true,direction:'top',offset:[0,-10]});ring=L.circle(ll,{radius:acc,color:'#e2431f',weight:2,fillOpacity:.12}).addTo(map)}
     else{dot.setLatLng(ll);ring.setLatLng(ll);ring.setRadius(acc)}
     if(first){focusAt(ll,Math.max(map.getZoom(),15));first=false}
-    else if(Date.now()-lastDrag>15000&&!map.getBounds().pad(-0.25).contains(ll)){prog=true;map.panTo(ll,{animate:false});prog=false}
+    else if(following&&!map.getBounds().pad(-0.25).contains(ll)){prog=true;map.panTo(ll,{animate:false});prog=false}
   },err=>{stop();st.textContent='Location failed: '+err.message},{enableHighAccuracy:true,maximumAge:5000,timeout:20000});
 };
 </script></body></html>

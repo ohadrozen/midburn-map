@@ -89,17 +89,18 @@ const dl=$('places'), byName=new Map();
 for(const p of CFG.places){const o=document.createElement('option');o.value=p.n;dl.append(o);byName.set(p.n,p)}
 let pin=null;
 $('search').onchange=e=>{const p=byName.get(e.target.value);if(!p)return;if(pin)pin.remove();
-  pin=L.circleMarker([p.lat,p.lon],{radius:14,color:'#fff',weight:3,fillColor:'#ff6a4d',fillOpacity:1}).addTo(map).bindPopup(`<b>${p.n}</b><br>${p.k}`);
+  pin=L.circleMarker([p.lat,p.lon],{radius:14,color:'#fff',weight:3,fillColor:'#ff6a4d',fillOpacity:1}).addTo(map).bindPopup(`<b>${p.n}</b><br>${p.k}`,{autoPan:false});
   focusAt([p.lat,p.lon],18);pin.openPopup()};
 // own GPS (works without reception: GPS needs no data)
-const btn=$('locate'); let watch=null, dot=null, ring=null, first=true, lastDrag=0;
-map.on('dragstart zoomstart',()=>{if(!prog)lastDrag=Date.now()});
-function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;btn.classList.remove('on');btn.textContent='⌖ My location'}
+const btn=$('locate'); let watch=null, dot=null, ring=null, first=true, following=false;
+// any pan or pinch by the user ends following; the dot keeps updating, the map stays where the user put it
+map.on('dragstart zoomstart',()=>{if(prog||!following)return;following=false;btn.textContent='⌖ Re-centre'});
+function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;following=false;btn.classList.remove('on');btn.textContent='⌖ My location'}
 btn.onclick=()=>{
-  if(watch!==null){stop();st.textContent='Location off.';return}
+  if(watch!==null){if(following){stop();st.textContent='Location off.'}else{following=true;btn.textContent='⌖ Following';if(dot)focusAt(dot.getLatLng(),Math.max(map.getZoom(),17))}return}
   if(!navigator.geolocation){st.textContent='This browser has no geolocation.';return}
   if(!window.isSecureContext){st.textContent='Location needs https. Open the page from its https address.';return}
-  btn.classList.add('on');btn.textContent='⌖ Following';st.textContent='Waiting for GPS…';first=true;
+  btn.classList.add('on');btn.textContent='⌖ Following';st.textContent='Waiting for GPS…';first=true;following=true;
   watch=navigator.geolocation.watchPosition(pos=>{
     const {latitude:lat,longitude:lon,accuracy:acc}=pos.coords, ll=[lat,lon];
     if(!dot){dot=L.circleMarker(ll,{radius:13,color:'#fff',weight:3,fillColor:'#4da3ff',fillOpacity:1}).addTo(map);ring=L.circle(ll,{radius:acc,color:'#4da3ff',weight:2,fillOpacity:.15}).addTo(map)}
@@ -107,7 +108,7 @@ btn.onclick=()=>{
     const inside=L.latLngBounds(bounds).contains(ll);
     st.textContent=`GPS ±${Math.round(acc)} m${inside?'':' · outside the city map'}`;
     if(first){focusAt(ll,Math.max(map.getZoom(),17));first=false}
-    else if(Date.now()-lastDrag>15000&&!map.getBounds().pad(-0.25).contains(ll)){prog=true;map.panTo(ll,{animate:false});prog=false}
+    else if(following&&!map.getBounds().pad(-0.25).contains(ll)){prog=true;map.panTo(ll,{animate:false});prog=false}
   },err=>{stop();st.textContent='Location failed: '+err.message},{enableHighAccuracy:true,maximumAge:2000,timeout:20000});
 };
 // SmartTag layer: tag.json = {updated:"ISO", tags:[{name,lat,lon,accuracy,time:"ISO"}]}; last copy kept on the phone for offline use
