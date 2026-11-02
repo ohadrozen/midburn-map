@@ -13,7 +13,8 @@ html,body{height:100%;margin:0;font:20px/1.35 -apple-system,system-ui,Segoe UI,R
 .titlerow{flex:1 1 100%;display:flex;align-items:center;gap:10px}
 .panel h1{font-size:22px;margin:0;flex:1;line-height:1.2}
 #toggle{flex:0 0 auto;min-width:56px;padding:6px}
-.panel.compact .row2,.panel.compact label,.panel.compact #search,.panel.compact #status,.panel.compact #tags{display:none}
+.panel.compact .row2,.panel.compact label,.panel.compact #search,.panel.compact #tags{display:none}
+.panel.compact #status{margin-top:-4px}
 .row2{flex:1 1 100%;display:flex;gap:10px;flex-wrap:wrap}
 .panel label{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:19px;flex:1 1 140px;min-width:0}
 input[type=range]{flex:1 1 90px;min-width:70px;height:44px;accent-color:var(--blue)}
@@ -64,7 +65,7 @@ const panel=$('panel'), st=$('status');
 const map=L.map('map',{zoomControl:true,maxZoom:21}).setView(CFG.center,16);
 window.addEventListener('load',()=>{map.invalidateSize();map.fitBounds(bounds)});
 const SAT='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-const sat=L.tileLayer(SAT,{maxNativeZoom:19,maxZoom:21,attribution:'Esri World Imagery'});
+const sat=L.tileLayer(SAT,{maxNativeZoom:17,maxZoom:21,attribution:'Esri World Imagery'});
 const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:21,attribution:'© OpenStreetMap'});
 let base=sat.addTo(map);
 const overlay=L.imageOverlay(IMG,bounds,{opacity:.85,interactive:false}).addTo(map);
@@ -76,7 +77,7 @@ function setCompact(c){panel.classList.toggle('compact',c);$('toggle').textConte
 $('toggle').onclick=()=>setCompact(!panel.classList.contains('compact'));
 try{if(localStorage.getItem('compact')==='1')setCompact(true)}catch(e){}
 // centre a point in the part of the screen below the panel
-function focusAt(ll,z){map.setView(ll,z??map.getZoom(),{animate:false});const h=panel.getBoundingClientRect().height+12;map.panBy([0,-h/2],{animate:false})}
+function focusAt(ll,z){setCompact(true);map.setView(ll,z??map.getZoom(),{animate:false});const h=panel.getBoundingClientRect().height+12;map.panBy([0,-h/2],{animate:false})}
 // places search
 const dl=$('places'), byName=new Map();
 for(const p of CFG.places){const o=document.createElement('option');o.value=p.n;dl.append(o);byName.set(p.n,p)}
@@ -128,9 +129,9 @@ function tilesFor(zmin,zmax){const out=[];const pad=0.004;for(let z=zmin;z<=zmax
   for(let x=tx(b.west-pad);x<=tx(b.east+pad);x++)for(let y=ty(b.north+pad);y<=ty(b.south-pad);y++)out.push(SAT.replace('{z}',z).replace('{x}',x).replace('{y}',y))}return out}
 $('offline').onclick=async e=>{
   if(!('caches' in window)){st.textContent='This browser cannot store tiles offline.';return}
-  const urls=tilesFor(12,18); e.disabled=true; let done=0, failed=0;
+  const urls=tilesFor(12,17); e.disabled=true; let done=0, failed=0;
   const cache=await caches.open('tiles-v1');
-  st.textContent=`Saving satellite tiles… 0/${urls.length}`;
+  st.textContent=`Saving satellite tiles… 0/${urls.length}`;setCompact(false);
   const q=urls.slice(); const worker=async()=>{while(q.length){const u=q.shift();try{if(!(await cache.match(u))){const r=await fetch(u,{mode:'cors'});if(r.ok)await cache.put(u,r);else failed++}}catch(x){failed++}done++;if(done%10===0)st.textContent=`Saving satellite tiles… ${done}/${urls.length}`}};
   await Promise.all([worker(),worker(),worker(),worker()]);
   e.disabled=false; e.textContent='✓ Saved offline';
