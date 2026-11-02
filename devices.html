@@ -106,7 +106,7 @@ const CITY_IMG="data:image/webp;base64,UklGRprSEgBXRUJQVlA4II7SEgAwky+dASolFvcJP
 L.imageOverlay(CITY_IMG,CITY.bounds,{opacity:.9,interactive:false}).addTo(map);
 L.rectangle(CITY.bounds,{color:'#e2431f',weight:2,fill:false,dashArray:'6 4'}).addTo(map).bindTooltip('Midburn 2026',{permanent:true,direction:'center',className:'citylabel'});
 map.on('zoomend',()=>{document.querySelectorAll('.citylabel').forEach(e=>e.style.display=map.getZoom()>=14?'none':'')});
-$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(CITY.bounds,{padding:[20,20],animate:false});prog=false};
+$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(L.latLng(CITY.center).toBounds(2000),{animate:false});prog=false}; // 2 km square = 1 km radius
 // own position
 const btn=$('locate'); let watch=null, dot=null, ring=null, first=true;
 function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;following=false;btn.classList.remove('on');btn.textContent='⌖ Me'}
