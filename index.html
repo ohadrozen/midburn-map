@@ -76,7 +76,7 @@ let base=sat.addTo(map);
 const overlay=L.imageOverlay(IMG,bounds,{opacity:.85,interactive:false}).addTo(map);
 L.rectangle(bounds,{color:'#fff',weight:1,fill:false,dashArray:'4 4'}).addTo(map);
 $('opacity').oninput=e=>overlay.setOpacity(e.target.value/100);
-$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(bounds,{padding:[10,10]});prog=false};
+$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(bounds,{padding:[10,10],animate:false});prog=false};
 $('base').onclick=e=>{map.removeLayer(base);base=(base===sat?osm:sat).addTo(map);base.bringToBack();e.target.textContent=base===sat?'Satellite':'Streets'};
 // panel collapse (remembered per phone)
 function setCompact(c){panel.classList.toggle('compact',c);$('toggle').textContent=c?'▼':'▲';$('toggle').setAttribute('aria-label',c?'Expand panel':'Collapse panel');try{localStorage.setItem('compact',c?'1':'0')}catch(e){}}

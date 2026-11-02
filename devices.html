@@ -95,7 +95,7 @@ $('refresh').onclick=poll; poll(); setInterval(poll,POLL_MS);
 // Midburn 2026 city (from georef.json)
 const CITY={center:[30.821027,35.049428],bounds:[[30.816967,35.039000],[30.825087,35.059855]]};
 L.rectangle(CITY.bounds,{color:'#e2431f',weight:2,fill:false,dashArray:'6 4'}).addTo(map).bindTooltip('Midburn 2026',{permanent:true,direction:'center',className:'citylabel'});
-$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(CITY.bounds,{padding:[20,20]});prog=false};
+$('city').onclick=()=>{setCompact(true);prog=true;map.fitBounds(CITY.bounds,{padding:[20,20],animate:false});prog=false};
 // own position
 const btn=$('locate'); let watch=null, dot=null, ring=null, first=true;
 function stop(){if(watch!==null)navigator.geolocation.clearWatch(watch);watch=null;btn.classList.remove('on');btn.textContent='⌖ Me'}
