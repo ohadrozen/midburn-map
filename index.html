@@ -42,7 +42,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .leaflet-popup-content-wrapper{background:#fff;color:#14142a;border-radius:12px;border:2px solid #8a8fb0}
 .leaflet-popup-tip{background:#fff}
 .leaflet-popup-close-button{font-size:28px!important;width:36px!important;height:36px!important;line-height:36px!important;color:#14142a!important}
-.leaflet-tooltip{font-size:18px;font-weight:700;background:#fff;color:#8a5200;border:2px solid #c77700;border-radius:8px;padding:4px 8px}
+.leaflet-tooltip{font-size:12px;font-weight:600;background:rgba(255,255,255,.9);color:#8a5200;border:1px solid #c77700;border-radius:6px;padding:1px 5px}
 .leaflet-tooltip-top:before{border-top-color:#c77700}
 .leaflet-control-attribution{font-size:12px;background:rgba(255,255,255,.85);color:#3f4460}
 .leaflet-control-attribution a{color:#1f6fe0}
@@ -123,7 +123,7 @@ function renderTags(data,stale){
   const tags=((data&&data.tags)||[]).slice().sort((x,y)=>String(x.name).localeCompare(String(y.name),undefined,{numeric:true})); tagsEl.querySelectorAll('button').forEach(x=>x.remove());
   tagline.textContent=tags.length?(stale?'No reception · last known tag positions':'Tags updated '+ago(data.updated||tags[0].time)):(stale?'No reception · no tag positions stored yet':'Tag feed linked · no positions yet');
   for(const t of tags){if(!Number.isFinite(t.lat)||!Number.isFinite(t.lon))continue;const ll=[t.lat,t.lon]; let m=tagMarkers.get(t.name);
-    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:'#ffb020',fillOpacity:1}).addTo(map).bindTooltip(t.name,{permanent:true,direction:'top',offset:[0,-10]});tagMarkers.set(t.name,m)}
+    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:'#ffb020',fillOpacity:1}).addTo(map).bindTooltip(t.name,{permanent:true,direction:'top',offset:[0,-8]});tagMarkers.set(t.name,m)}
     else m.setLatLng(ll);
     m.setStyle({fillOpacity:stale?.6:1});
     const inside=L.latLngBounds(bounds).contains(ll);

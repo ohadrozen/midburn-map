@@ -39,7 +39,7 @@ button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .leaflet-popup-content-wrapper{background:#fff;color:#14142a;border-radius:12px;border:2px solid #8a8fb0}
 .leaflet-popup-tip{background:#fff}
 .leaflet-popup-close-button{font-size:28px!important;width:36px!important;height:36px!important;line-height:36px!important;color:#14142a!important}
-.leaflet-tooltip{font-size:17px;font-weight:700;background:#fff;color:#14142a;border:2px solid #8a8fb0;border-radius:8px;padding:3px 8px}
+.leaflet-tooltip{font-size:12px;font-weight:600;background:rgba(255,255,255,.9);color:#14142a;border:1px solid #8a8fb0;border-radius:6px;padding:1px 5px}
 .leaflet-tooltip.citylabel{background:transparent;border:0;box-shadow:none;color:#e2431f;font-size:16px}
 .leaflet-control-attribution{font-size:12px;background:rgba(255,255,255,.85);color:#3f4460}
 .leaflet-control-attribution a{color:#1f6fe0}
@@ -62,7 +62,7 @@ const POLL_MS=30000; const $=id=>document.getElementById(id);
 const panel=$('panel'), st=$('status'), list=$('devices');
 // The feed address is never in this public page: it comes with the shared link (#feed=<https url>) and is remembered on this device.
 const FEED=(()=>{try{const m=location.hash.match(/feed=([^&]+)/);if(m){const u=decodeURIComponent(m[1]);if(/^https:\/\//.test(u))localStorage.setItem('devfeed',u);history.replaceState(null,'',location.pathname+location.search)}return localStorage.getItem('devfeed')}catch(e){return null}})();
-const map=L.map('map',{zoomControl:true,maxZoom:20}).setView([31.5,34.9],8);
+const map=L.map('map',{zoomControl:true,maxZoom:20,zoomSnap:0.25}).setView([31.5,34.9],8);
 const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxNativeZoom:19,maxZoom:20,attribution:'Esri World Imagery'});
 const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxNativeZoom:19,maxZoom:20,attribution:'© OpenStreetMap'});
 let base=osm.addTo(map);
@@ -84,8 +84,8 @@ function render(data,stale){
   st.textContent=devs.length?(stale?'No connection · last known positions':'Updated '+ago(data.updated||devs[0].time)+(data.updated?' · refreshes every 30 s':'')):(stale?'No connection · nothing stored yet':'Feed linked · no positions yet');
   const pts=[];
   for(const d of devs){const ll=[d.lat,d.lon], k=kindOf(d), col=KCOL[k]; pts.push(ll); let m=markers.get(d.name);
-    const html=`<b>${d.name}</b><br>${ago(d.time)} · ±${Math.round(d.accuracy||0)} m${d.battery!=null?' · battery '+d.battery+'%':''}<br><a href="https://www.google.com/maps?q=${d.lat},${d.lon}" target="_blank" rel="noopener">Open in Google Maps</a> &nbsp; <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lon}" target="_blank" rel="noopener">Navigate</a>`;
-    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:col,fillOpacity:1}).addTo(map).bindTooltip(d.name,{permanent:true,direction:'top',offset:[0,-10]}).bindPopup(html,{autoPan:false});markers.set(d.name,m)}
+    const html=`<b>${d.name}</b><br>${ago(d.time)} · ±${Math.round(d.accuracy||0)} m`;
+    if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:col,fillOpacity:1}).addTo(map).bindTooltip(d.name,{permanent:true,direction:'top',offset:[0,-8]}).bindPopup(html,{autoPan:false});markers.set(d.name,m)}
     else{m.setLatLng(ll);m.setPopupContent(html)}
     m.setStyle({fillOpacity:stale?.6:1});
     const bt=document.createElement('button');bt.type='button';bt.style.borderColor=col;if(stale)bt.classList.add('stale');
