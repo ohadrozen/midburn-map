@@ -113,7 +113,7 @@ function ago(iso){const s=(Date.now()-Date.parse(iso))/1000;if(!isFinite(s))retu
 function renderTags(data,stale){
   const tags=(data&&data.tags)||[]; tagsEl.querySelectorAll('button').forEach(x=>x.remove());
   tagline.textContent=tags.length?(stale?'No reception · last known tag positions':'Tags updated '+ago(data.updated||tags[0].time)):(stale?'No reception · no tag positions stored yet':'Tag feed linked · no positions yet');
-  for(const t of tags){const ll=[t.lat,t.lon]; let m=tagMarkers.get(t.name);
+  for(const t of tags){if(!Number.isFinite(t.lat)||!Number.isFinite(t.lon))continue;const ll=[t.lat,t.lon]; let m=tagMarkers.get(t.name);
     if(!m){m=L.circleMarker(ll,{radius:12,color:'#17120f',weight:3,fillColor:'#ffb020',fillOpacity:1}).addTo(map).bindTooltip(t.name,{permanent:true,direction:'top',offset:[0,-10]});tagMarkers.set(t.name,m)}
     else m.setLatLng(ll);
     m.setStyle({fillOpacity:stale?.6:1});
